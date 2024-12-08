@@ -143,7 +143,6 @@ final class MovieQuizViewController: UIViewController {
         showQuestion(quiz: viewModel)
     }
     
-
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questinStep = QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
@@ -189,12 +188,9 @@ final class MovieQuizViewController: UIViewController {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             
-            
             self.imageView.layer.borderWidth = 0
             self.imageView.layer.borderColor = nil
             self.showNextQuestionOrResults()
-            
-            
         }
     }
     
@@ -221,8 +217,6 @@ final class MovieQuizViewController: UIViewController {
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
     }
-        
-     
 }
 
 
