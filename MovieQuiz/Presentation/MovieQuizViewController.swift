@@ -163,7 +163,7 @@ final class MovieQuizViewController: UIViewController {
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             
-            _ = self.questions[self.currentQuestionIndex]
+//            _ = self.questions[self.currentQuestionIndex]
 //            let viewModel = self.convert(model: firstQuestion)
 //            self.show(quiz: viewModel)
             self.showFirstQuestion()
