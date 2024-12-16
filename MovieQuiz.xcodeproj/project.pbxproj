@@ -13,9 +13,9 @@
 		AD5EE5DE284D7887003966EF /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD5EE5DD284D7887003966EF /* UIColor+Extensions.swift */; };
 		AD77F5742857F8810062FB14 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD77F5732857F8810062FB14 /* Date+Extensions.swift */; };
 		AD7AFA552836189F00399704 /* Array+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7AFA542836189F00399704 /* Array+Extensions.swift */; };
-		FABC9D522CF2AE11001B009E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FABC9D512CF2AE11001B009E /* Assets.xcassets */; };
 		FABC9D562CF2AE77001B009E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FABC9D552CF2AE77001B009E /* LaunchScreen.storyboard */; };
 		FABC9D582CF557A2001B009E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FABC9D572CF557A2001B009E /* Main.storyboard */; };
+		FABC9DC52D10B85F001B009E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FABC9DC42D10B85F001B009E /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,11 +27,11 @@
 		AD5EE5DD284D7887003966EF /* UIColor+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		AD77F5732857F8810062FB14 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 		AD7AFA542836189F00399704 /* Array+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Extensions.swift"; sourceTree = "<group>"; };
-		FABC9D512CF2AE11001B009E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = "../../../MovieQuiz-ios/MovieQuiz/Resources/Assets.xcassets"; sourceTree = "<group>"; };
 		FABC9D532CF2AE63001B009E /* YS Display-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Medium.ttf"; sourceTree = "<group>"; };
 		FABC9D542CF2AE6C001B009E /* YS Display-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "YS Display-Bold.ttf"; sourceTree = "<group>"; };
 		FABC9D552CF2AE77001B009E /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FABC9D572CF557A2001B009E /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		FABC9DC42D10B85F001B009E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,8 +60,8 @@
 				FABC9D542CF2AE6C001B009E /* YS Display-Bold.ttf */,
 				FABC9D532CF2AE63001B009E /* YS Display-Medium.ttf */,
 				FABC9D552CF2AE77001B009E /* LaunchScreen.storyboard */,
-				FABC9D512CF2AE11001B009E /* Assets.xcassets */,
 				AD1ABABF2831907F00B3E448 /* Info.plist */,
+				FABC9DC42D10B85F001B009E /* Assets.xcassets */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -181,7 +181,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FABC9D562CF2AE77001B009E /* LaunchScreen.storyboard in Resources */,
-				FABC9D522CF2AE11001B009E /* Assets.xcassets in Resources */,
+				FABC9DC52D10B85F001B009E /* Assets.xcassets in Resources */,
 				FABC9D582CF557A2001B009E /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
