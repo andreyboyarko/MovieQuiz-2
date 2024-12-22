@@ -4,17 +4,21 @@ final class MovieQuizViewController: UIViewController {
     
     @IBOutlet private weak var imageView: UIImageView!
     
+    @IBOutlet weak var noButton: UIButton!
+    
+    @IBOutlet weak var yesButton: UIButton!
+    
     @IBAction private func noButtonClicked(_ sender: UIButton) {
+        lockButtons()
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = false
-        
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-        
     }
+    
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        lockButtons()
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = true
-        
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     
@@ -26,13 +30,48 @@ final class MovieQuizViewController: UIViewController {
     
     
     
-    
-    
-    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         showFirstQuestion()
+        noButton.layer.cornerRadius = 20
+        noButton.clipsToBounds = true
+        yesButton.layer.cornerRadius = 20
+        yesButton.clipsToBounds = true
+        imageView.layer.cornerRadius = 20
+        imageView.clipsToBounds = true
+    }
+    
+    // Метод блокировки кнопок
+    private func lockButtons() {
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
+    }
+
+    // Метод разблокировки кнопок
+    private func unlockButtons() {
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
+    }
+
+    // Обработка результата ответа
+    private func showAnswerResult(isCorrect: Bool) {
+        if isCorrect {
+            correctAnswers += 1
+        }
+        
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        imageView.layer.cornerRadius = 20
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            
+            self.imageView.layer.borderWidth = 0
+            self.imageView.layer.borderColor = nil
+            self.showNextQuestionOrResults()
+            self.unlockButtons() // Разблокируем кнопки после завершения анимации
+        }
     }
     
     // переменная с индексом текущего вопроса, начальное значение 0 (так как индекс в массиве начинается с 0)
@@ -113,26 +152,6 @@ final class MovieQuizViewController: UIViewController {
       // текст для кнопки алерта
       let buttonText: String
     }
-    
-//    let alert = UIAlertController(
-//        title: "Этот раунд окончен!",
-//        message: "Ваш результат ???",
-//        preferredStyle: .alert)
-//
-//    let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
-//        self.currentQuestionIndex = 0
-//        // сбрасываем переменную с количеством правильных ответов
-//        self.correctAnswers = 0
-//
-//        // заново показываем первый вопрос
-//        let firstQuestion = self.questions[self.currentQuestionIndex]
-//        let viewModel = self.convert(model: firstQuestion)
-//        self.show(quiz: viewModel)
-//    }
-//
-//    alert.addAction(action)
-//
-//    self.present(alert, animated: true, completion: nil)
 
     private func showFirstQuestion() {
         // Получаем первый вопрос
@@ -162,36 +181,12 @@ final class MovieQuizViewController: UIViewController {
         let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
-            
-//            _ = self.questions[self.currentQuestionIndex]
-//            let viewModel = self.convert(model: firstQuestion)
-//            self.show(quiz: viewModel)
             self.showFirstQuestion()
         }
         
         alert.addAction(action)
         
         self.present(alert, animated: true, completion: nil)
-    }
-   
-    // приватный метод, который обрабатывает результат ответа
-    // принимает на вход булевое значение и ничего не возвращает
-    private func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            correctAnswers += 1
-        }
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        imageView.layer.cornerRadius = 6
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            
-            self.imageView.layer.borderWidth = 0
-            self.imageView.layer.borderColor = nil
-            self.showNextQuestionOrResults()
-        }
     }
     
     private func showNextQuestionOrResults() {
@@ -206,8 +201,6 @@ final class MovieQuizViewController: UIViewController {
             currentQuestionIndex += 1
             let nextQuestion = questions[currentQuestionIndex]
             let viewModel = convert(model: nextQuestion)
-            
-//            show(quiz: viewModel)
             showQuestion(quiz: viewModel)
         }
     }

@@ -16,6 +16,7 @@
 		FABC9D562CF2AE77001B009E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FABC9D552CF2AE77001B009E /* LaunchScreen.storyboard */; };
 		FABC9D582CF557A2001B009E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FABC9D572CF557A2001B009E /* Main.storyboard */; };
 		FABC9DC52D10B85F001B009E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FABC9DC42D10B85F001B009E /* Assets.xcassets */; };
+		FABC9DC62D15D939001B009E /* YS Display-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = FABC9D542CF2AE6C001B009E /* YS Display-Bold.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -183,6 +184,7 @@
 				FABC9D562CF2AE77001B009E /* LaunchScreen.storyboard in Resources */,
 				FABC9DC52D10B85F001B009E /* Assets.xcassets in Resources */,
 				FABC9D582CF557A2001B009E /* Main.storyboard in Resources */,
+				FABC9DC62D15D939001B009E /* YS Display-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
