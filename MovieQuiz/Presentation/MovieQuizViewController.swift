@@ -3,75 +3,27 @@ import UIKit
 final class MovieQuizViewController: UIViewController {
     
     @IBOutlet private weak var imageView: UIImageView!
-    
-    @IBOutlet weak var noButton: UIButton!
-    
-    @IBOutlet weak var yesButton: UIButton!
-    
+    @IBOutlet private weak var noButton: UIButton!
+    @IBOutlet private weak var yesButton: UIButton!
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         lockButtons()
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = false
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
-    
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         lockButtons()
         let currentQuestion = questions[currentQuestionIndex]
         let givenAnswer = true
         showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
-    
     @IBOutlet private weak var textLabel: UILabel!
-    
     @IBOutlet private weak var counterLabel: UILabel!
-    
-    
-    
-    
-    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         showFirstQuestion()
-        noButton.layer.cornerRadius = 20
-        noButton.clipsToBounds = true
-        yesButton.layer.cornerRadius = 20
-        yesButton.clipsToBounds = true
-        imageView.layer.cornerRadius = 20
-        imageView.clipsToBounds = true
-    }
-    
-    // Метод блокировки кнопок
-    private func lockButtons() {
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
-    }
-
-    // Метод разблокировки кнопок
-    private func unlockButtons() {
-        yesButton.isEnabled = true
-        noButton.isEnabled = true
-    }
-
-    // Обработка результата ответа
-    private func showAnswerResult(isCorrect: Bool) {
-        if isCorrect {
-            correctAnswers += 1
-        }
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        imageView.layer.cornerRadius = 20
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            
-            self.imageView.layer.borderWidth = 0
-            self.imageView.layer.borderColor = nil
-            self.showNextQuestionOrResults()
-            self.unlockButtons() // Разблокируем кнопки после завершения анимации
-        }
+        configureUI()
     }
     
     // переменная с индексом текущего вопроса, начальное значение 0 (так как индекс в массиве начинается с 0)
@@ -123,7 +75,7 @@ final class MovieQuizViewController: UIViewController {
                 correctAnswer: false)
     ]
     
-    struct QuizQuestion {
+    private struct QuizQuestion {
         // строка с названием фильма
         // совпадает с названием картинки афиши фильма в Assets
         let image: String
@@ -134,7 +86,7 @@ final class MovieQuizViewController: UIViewController {
     }
 
     // вью модель для состояния "Вопрос показан"
-    struct QuizStepViewModel {
+    private struct QuizStepViewModel {
       // картинка с афишей фильма с типом UIImage
       let image: UIImage
       // вопрос о рейтинге квиза
@@ -144,7 +96,7 @@ final class MovieQuizViewController: UIViewController {
     }
 
     // для состояния "Результат квиза"
-    struct QuizResultsViewModel {
+    private struct QuizResultsViewModel {
       // строка с заголовком алерта
       let title: String
       // строка с текстом о количестве набранных очков
@@ -152,7 +104,50 @@ final class MovieQuizViewController: UIViewController {
       // текст для кнопки алерта
       let buttonText: String
     }
+    
+    private func configureUI() {
+        // Настройка кнопок
+           yesButton.layer.cornerRadius = 15
+           yesButton.clipsToBounds = true
+           noButton.layer.cornerRadius = 15
+           noButton.clipsToBounds = true
+           // Настройка imageView
+           imageView.layer.cornerRadius = 20
+           imageView.clipsToBounds = true
+           imageView.contentMode = .scaleAspectFill
+    }
+    
+    // Метод блокировки кнопок
+    private func lockButtons() {
+        yesButton.isEnabled = false
+        noButton.isEnabled = false
+    }
 
+    // Метод разблокировки кнопок
+    private func unlockButtons() {
+        yesButton.isEnabled = true
+        noButton.isEnabled = true
+    }
+
+    // Обработка результата ответа
+    private func showAnswerResult(isCorrect: Bool) {
+        if isCorrect {
+            correctAnswers += 1
+        }
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
+        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        imageView.layer.cornerRadius = 20
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            
+            self.imageView.layer.borderWidth = 0
+            self.imageView.layer.borderColor = nil
+            self.showNextQuestionOrResults()
+            self.unlockButtons() // Разблокируем кнопки после завершения анимации
+        }
+    }
+    
     private func showFirstQuestion() {
         // Получаем первый вопрос
         let firstQuestion = questions[currentQuestionIndex]
@@ -161,7 +156,6 @@ final class MovieQuizViewController: UIViewController {
         // Показываем его на экране
         showQuestion(quiz: viewModel)
     }
-    
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questinStep = QuizStepViewModel(
             image: UIImage(named: model.image) ?? UIImage(),
@@ -177,15 +171,12 @@ final class MovieQuizViewController: UIViewController {
             title: result.title,
             message: result.text,
             preferredStyle: .alert)
-        
         let action = UIAlertAction(title: result.buttonText, style: .default) { _ in
             self.currentQuestionIndex = 0
             self.correctAnswers = 0
             self.showFirstQuestion()
         }
-        
         alert.addAction(action)
-        
         self.present(alert, animated: true, completion: nil)
     }
     
@@ -200,6 +191,7 @@ final class MovieQuizViewController: UIViewController {
         } else {
             currentQuestionIndex += 1
             let nextQuestion = questions[currentQuestionIndex]
+            updateImageView()
             let viewModel = convert(model: nextQuestion)
             showQuestion(quiz: viewModel)
         }
@@ -210,8 +202,13 @@ final class MovieQuizViewController: UIViewController {
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
     }
+    
+    private func updateImageView() {
+    imageView.contentMode = .scaleAspectFill
+    imageView.layer.cornerRadius = 20
+    imageView.clipsToBounds = true
+    }
 }
-
 
 
 
