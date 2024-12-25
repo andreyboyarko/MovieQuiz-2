@@ -2,30 +2,6 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController {
     
-    @IBOutlet private weak var imageView: UIImageView!
-    @IBOutlet private weak var noButton: UIButton!
-    @IBOutlet private weak var yesButton: UIButton!
-    @IBAction private func noButtonClicked(_ sender: UIButton) {
-        lockButtons()
-        let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-    @IBAction private func yesButtonClicked(_ sender: UIButton) {
-        lockButtons()
-        let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = true
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
-    }
-    @IBOutlet private weak var textLabel: UILabel!
-    @IBOutlet private weak var counterLabel: UILabel!
-    // MARK: - Lifecycle
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        showFirstQuestion()
-        configureUI()
-    }
-    
     // переменная с индексом текущего вопроса, начальное значение 0 (так как индекс в массиве начинается с 0)
     private var currentQuestionIndex = 0
     
@@ -104,47 +80,23 @@ final class MovieQuizViewController: UIViewController {
       // текст для кнопки алерта
       let buttonText: String
     }
-    
-    private func configureUI() {
-        // Настройка кнопок
-           yesButton.layer.cornerRadius = 15
-           yesButton.clipsToBounds = true
-           noButton.layer.cornerRadius = 15
-           noButton.clipsToBounds = true
-           // Настройка imageView
-           imageView.layer.cornerRadius = 20
-           imageView.clipsToBounds = true
-           imageView.contentMode = .scaleAspectFill
-    }
-    
-    // Метод блокировки кнопок
-    private func lockButtons() {
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
-    }
-
-    // Метод разблокировки кнопок
-    private func unlockButtons() {
-        yesButton.isEnabled = true
-        noButton.isEnabled = true
-    }
 
     // Обработка результата ответа
     private func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
             correctAnswers += 1
         }
+        
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        imageView.layer.cornerRadius = 20
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             
             self.imageView.layer.borderWidth = 0
             self.imageView.layer.borderColor = nil
             self.showNextQuestionOrResults()
-            self.unlockButtons() // Разблокируем кнопки после завершения анимации
+            self.changeStateButton(isEnabled: true) // Разблокируем кнопки
         }
     }
     
@@ -197,17 +149,61 @@ final class MovieQuizViewController: UIViewController {
         }
     }
     
+    private func updateImageView() {
+    imageView.contentMode = .scaleAspectFill
+    imageView.layer.cornerRadius = 20
+    imageView.clipsToBounds = true
+    }
+    
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var noButton: UIButton!
+    @IBOutlet private weak var yesButton: UIButton!
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var counterLabel: UILabel!
+    
+    // MARK: - Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        showFirstQuestion()
+        configureUI()
+    }
+    
+    private func configureUI() {
+        // Настройка кнопок
+        yesButton.layer.cornerRadius = 15
+        yesButton.clipsToBounds = true
+        noButton.layer.cornerRadius = 15
+        noButton.clipsToBounds = true
+        // Настройка imageView
+        imageView.layer.cornerRadius = 20
+        imageView.clipsToBounds = true
+        imageView.contentMode = .scaleAspectFill
+    }
+    
+    private func changeStateButton(isEnabled: Bool) {
+           noButton.isEnabled = isEnabled
+           yesButton.isEnabled = isEnabled
+       }
+    
     private func showQuestion(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
     }
     
-    private func updateImageView() {
-    imageView.contentMode = .scaleAspectFill
-    imageView.layer.cornerRadius = 20
-    imageView.clipsToBounds = true
+    @IBAction private func noButtonClicked(_ sender: UIButton) {
+        changeStateButton(isEnabled: false) // Блокируем кнопки
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = false
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
+    @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        changeStateButton(isEnabled: false) // Блокируем кнопки
+        let currentQuestion = questions[currentQuestionIndex]
+        let givenAnswer = true
+        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
+    
 }
 
 
