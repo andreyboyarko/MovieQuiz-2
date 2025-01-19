@@ -1,14 +1,9 @@
-
 import Foundation
 
-class QuestionFactory: QuestionFactoryProtocol {
+final class QuestionFactory: QuestionFactoryProtocol {
     weak var delegate: QuestionFactoryDelegate?
     
-    func setup(delegate: QuestionFactoryDelegate) {
-            self.delegate = delegate
-        }
-    
-    private let questions: [QuizQuestion] = [
+    private var questions: [QuizQuestion] = [
         QuizQuestion(
             image: "The Godfather",
             text: "Рейтинг этого фильма больше чем 6?",
@@ -53,10 +48,20 @@ class QuestionFactory: QuestionFactoryProtocol {
     
     private var currentQuestionIndex = 0
     
-    func requestNextQuestion() {
-        let question = questions[currentQuestionIndex]
-        currentQuestionIndex = (currentQuestionIndex + 1) % questions.count
-        delegate?.didReceiveNextQuestion(question: question)
+    init() {
+        questions.shuffle() // Перемешиваем массив при создании фабрики
     }
-
+    
+    func setup(delegate: QuestionFactoryDelegate) {
+        self.delegate = delegate
+    }
+    
+    func requestNextQuestion() -> QuizQuestion? {
+        guard !questions.isEmpty else { return nil } // Проверяем, что массив не пуст
+        let question = questions[currentQuestionIndex]
+        currentQuestionIndex = (currentQuestionIndex + 1) % questions.count // Индекс следующего вопроса
+        delegate?.didReceiveNextQuestion(question: question) // Сообщаем делегату
+        return question
+    }
 }
+

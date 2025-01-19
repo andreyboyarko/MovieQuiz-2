@@ -36,7 +36,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         let questionFactory = QuestionFactory()
         questionFactory.delegate = self
         self.questionFactory = questionFactory
-//      questionFactory.requestNextQuestion()
+        _ = questionFactory.requestNextQuestion()
         imageView.layer.cornerRadius = 20
         alertPresenter = AlertPresenter(viewController: self)
             
@@ -65,7 +65,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showFirstQuestion() {
-        questionFactory?.requestNextQuestion()
+        _ = questionFactory?.requestNextQuestion()
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
@@ -91,10 +91,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 // Сох. статистики в StatisticService
                 statisticService.store(correct: correctAnswers, total: questionsAmount)
                 let massage = """
-                    Вы ответили на \(correctAnswers) из \(questionsAmount). Попробуйте ещё раз!
-                    Точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
-                    Рекорд: \(statisticService.bestGame.correct) из \(statisticService.bestGame.total)
-                    Лучший результат: \(statisticService.bestGame.date.dateTimeString)
+                    Ваш результат \(correctAnswers)/\(questionsAmount)
+                    Количество сыгранных квизов: \(statisticService.gamesCount)
+                    Рекорд: \(correctAnswers)/\(questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
+                    Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
                     """
                 
                 let alertModel = AlertModel(
@@ -109,18 +109,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 alertPresenter?.showAlert(model: alertModel)
             } else {
                 currentQuestionIndex += 1
-                        questionFactory?.requestNextQuestion()
+                _ = questionFactory?.requestNextQuestion()
                 setButtonsEnabled(true)
                 }
         }
-        
-
-
     
     private func restartGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
-        questionFactory?.requestNextQuestion()
     }
     
     private func setButtonsEnabled(_ isEnabled: Bool) {
@@ -174,8 +170,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
-    
-
 
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         changeStateButton(isEnabled: false) // Блокируем кнопки

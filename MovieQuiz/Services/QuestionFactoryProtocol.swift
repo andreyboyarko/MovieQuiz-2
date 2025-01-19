@@ -1,7 +1,11 @@
-import Foundation
-
+//import Foundation
+//
+//protocol QuestionFactoryProtocol {
+//    func requestNextQuestion()
+//}
 protocol QuestionFactoryProtocol {
-    func requestNextQuestion()
-} 
+    func requestNextQuestion() -> QuizQuestion?
+    func setup(delegate: QuestionFactoryDelegate)
+}
 
 
