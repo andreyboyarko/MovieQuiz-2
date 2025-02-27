@@ -17,32 +17,34 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
+        print("didReceiveNextQuestion вызван")
         guard let question = question else {
+            print("Ошибка: получили пустой вопрос")
             return
         }
+        print("Получен вопрос: \(question.text), изображение: \(question.image.count) байт")
         currentQuestion = question
         let viewModel = convert(model: question)
+
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
     }
-  
+
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
         updateImageView()
         statisticService = StatisticService()
-        let questionFactory = QuestionFactory()
-        questionFactory.delegate = self
-        self.questionFactory = questionFactory
-        _ = questionFactory.requestNextQuestion()
-        imageView.layer.cornerRadius = 20
+        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         alertPresenter = AlertPresenter(viewController: self)
-            
-        showFirstQuestion()
-        }
-    
+        print("Загружаю данные...")
+        showLoadingIndicator() // Показываем индикатор загрузки перед загрузкой данных
+        questionFactory?.loadData() // Начинаем загрузку данных
+        imageView.layer.cornerRadius = 20
+    }
+
     // MARK: - Private Functions
     // Обработка результата ответа
     private func showAnswerResult(isCorrect: Bool) {
@@ -69,16 +71,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
+        print("Преобразование вопроса: \(model.text), изображение: \(model.image.count) байт")
+
+        if model.image.isEmpty {
+            print("Ошибка: пустые данные изображения")
+        } else {
+            print("Размер данных изображения: \(model.image.count) байт")
+        }
+
         return QuizStepViewModel(
-                image: UIImage(named: model.image) ?? UIImage(),
-                question: model.text,
-                questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-            )
+            image: UIImage(data: model.image) ?? UIImage(), // Преобразуем картинку
+            question: model.text,
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
+        )
     }
-    
-    // приватный метод для показа результатов раунда квиза
-    // принимает вью модель QuizResultsViewModel и ничего не возвращает
+
     private func show(quiz step: QuizStepViewModel) {
+        print("Отображаем вопрос: \(step.question), изображение: \(step.image)")
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
@@ -102,7 +111,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                     message: massage,
                     buttonText: "Сыграть ещё раз",
                     completion: { [weak self] in
-                //                        show(quiz: viewModel)
                             self?.restartGame()
                         }
                 )
@@ -117,6 +125,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private func restartGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
+        showFirstQuestion()
     }
     
     private func setButtonsEnabled(_ isEnabled: Bool) {
@@ -164,13 +173,72 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         yesButton.isEnabled = isEnabled
     }
     
+    private func showLoadingIndicator() {
+        DispatchQueue.main.async {
+            self.activityIndicator.isHidden = false
+            self.activityIndicator.startAnimating()
+        }
+    }
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModel(title: "Ошибка",
+                               message: message,
+                               buttonText: "Попробовать еще раз") { [weak self] in
+            guard let self = self else { return }
+            
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+        
+        //alertPresenter.showAlert(in: self, model: model)
+        if let alertPresenter = alertPresenter {
+            alertPresenter.showAlert(model: model)
+        }
+
+    }
+    
+    func didLoadDataFromServer() {
+        print("Данные успешно загружены.")
+        activityIndicator.isHidden = true // скрываем индикатор загрузки
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: Error) {
+        print("Ошибка загрузки данных: \(error.localizedDescription)")
+        hideLoadingIndicator()
+        
+        let alertModel = AlertModel(
+            title: "Ошибка",
+            message: error.localizedDescription,
+            buttonText: "Попробовать снова"
+        ) { [weak self] in
+            print("Повторная попытка загрузки данных")
+            self?.showLoadingIndicator()
+            self?.questionFactory?.loadData()
+        }
+
+        alertPresenter?.showAlert(model: alertModel)
+    }
+    
+    private func hideLoadingIndicator() {
+        DispatchQueue.main.async {
+            self.activityIndicator.isHidden = true
+            self.activityIndicator.stopAnimating()
+        }
+    }
+
     //MARK: - IBOutlets
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var noButton: UIButton!
     @IBOutlet private weak var yesButton: UIButton!
     @IBOutlet private weak var textLabel: UILabel!
     @IBOutlet private weak var counterLabel: UILabel!
-
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
+    
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         changeStateButton(isEnabled: false) // Блокируем кнопки
         guard let currentQuestion = currentQuestion else {
@@ -190,66 +258,3 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 }
 
 
-/*
- Mock-данные
- 
- 
- Картинка: The Godfather
- Настоящий рейтинг: 9,2
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: The Dark Knight
- Настоящий рейтинг: 9
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: Kill Bill
- Настоящий рейтинг: 8,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: The Avengers
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: Deadpool
- Настоящий рейтинг: 8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: The Green Knight
- Настоящий рейтинг: 6,6
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: ДА
- 
- 
- Картинка: Old
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- 
- 
- Картинка: The Ice Age Adventures of Buck Wild
- Настоящий рейтинг: 4,3
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- 
- 
- Картинка: Tesla
- Настоящий рейтинг: 5,1
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- 
- 
- Картинка: Vivarium
- Настоящий рейтинг: 5,8
- Вопрос: Рейтинг этого фильма больше чем 6?
- Ответ: НЕТ
- */
