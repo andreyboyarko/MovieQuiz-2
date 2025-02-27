@@ -26,6 +26,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         currentQuestion = question
         let viewModel = convert(model: question)
 
+        if !Thread.isMainThread {
+            print("Внимание: попытка обновления UI не из главного потока!")
+        }
+
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
         }
@@ -36,36 +40,47 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         super.viewDidLoad()
         configureUI()
         updateImageView()
+        // Инициализация статистического сервиса
         statisticService = StatisticService()
+        // Инициализация фабрики вопросов
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        // Инициализация презентера алертов
         alertPresenter = AlertPresenter(viewController: self)
         print("Загружаю данные...")
-        showLoadingIndicator() // Показываем индикатор загрузки перед загрузкой данных
-        questionFactory?.loadData() // Начинаем загрузку данных
+        // Показываем индикатор загрузки
+        showLoadingIndicator()
+        // Начинаем загрузку данных
+        questionFactory?.loadData()
         imageView.layer.cornerRadius = 20
     }
-
+    
     // MARK: - Private Functions
     // Обработка результата ответа
     private func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
             correctAnswers += 1
         }
-        
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.cornerRadius = 20
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            self?.showNextQuestionOrResults()
+
+        if !Thread.isMainThread {
+            print("Внимание: попытка обновления UI не из главного потока!")
+        }
+
+        DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
+            self.imageView.layer.borderWidth = 8
+            self.imageView.layer.cornerRadius = 20
+            self.imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let self = self else { return }
+            self.showNextQuestionOrResults()
             self.imageView.layer.borderWidth = 0
             self.imageView.layer.borderColor = nil
             self.changeStateButton(isEnabled: true) // Разблокируем кнопки
         }
     }
-    
+
     private func showFirstQuestion() {
         _ = questionFactory?.requestNextQuestion()
     }
