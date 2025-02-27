@@ -53,8 +53,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         questionFactory?.loadData()
         imageView.layer.cornerRadius = 20
     }
-
-
+    
     // MARK: - Private Functions
     // Обработка результата ответа
     private func showAnswerResult(isCorrect: Bool) {
