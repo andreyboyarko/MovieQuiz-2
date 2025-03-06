@@ -102,17 +102,25 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="AJ2-oJ-xoM">
+                                <rect key="frame" x="186.66666666666666" y="416" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black (iOS)"/>
                         <constraints>
+                            <constraint firstItem="AJ2-oJ-xoM" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="EUz-Zn-Gac"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="oC6-jK-RFd" secondAttribute="trailing" constant="20" id="Gok-Dz-Uan"/>
+                            <constraint firstItem="AJ2-oJ-xoM" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="lVL-sP-ay7"/>
+                            <constraint firstItem="AJ2-oJ-xoM" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="lca-hd-ql5"/>
+                            <constraint firstItem="AJ2-oJ-xoM" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="lfK-wK-2Fl"/>
                             <constraint firstItem="oC6-jK-RFd" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="rqC-J9-wpv"/>
                             <constraint firstItem="oC6-jK-RFd" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="tuJ-yB-sRV"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="oC6-jK-RFd" secondAttribute="bottom" id="xxg-3K-A1R"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="AJ2-oJ-xoM" id="EOc-Sx-1qV"/>
                         <outlet property="counterLabel" destination="3pJ-Oh-c3R" id="WPp-L7-6uN"/>
                         <outlet property="imageView" destination="Nni-7y-uKR" id="w3P-y7-l9o"/>
                         <outlet property="noButton" destination="lZL-Km-yeq" id="HJi-vJ-ySc"/>
@@ -122,7 +130,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-55.072463768115945" y="55.580357142857139"/>
+            <point key="canvasLocation" x="-55.725190839694655" y="54.929577464788736"/>
         </scene>
     </scenes>
     <resources>
