@@ -1,112 +1,63 @@
-import UIKit
+
 import Foundation
 
-final class MovieQuizViewController: UIViewController {
-    // MARK: - Properties
-    private var currentQuestion: QuizQuestion?
-    private var alertPresenter: AlertPresenter?
-    private var statisticService: StatisticServiceProtocol!
-    private var presenter: MovieQuizPresenter! // Убрали неправильную инициализацию
 
-    // MARK: - Lifecycle
+import UIKit
+
+final class MovieQuizViewController: UIViewController {
+    private var presenter: MovieQuizPresenter!
+    private var alertPresenter: AlertPresenter?
+
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var noButton: UIButton!
+    @IBOutlet private weak var yesButton: UIButton!
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var counterLabel: UILabel!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
         updateImageView()
-        statisticService = StatisticService()
-        presenter = MovieQuizPresenter(viewController: self) // Правильная инициализация
+        presenter = MovieQuizPresenter(viewController: self)
         alertPresenter = AlertPresenter(viewController: self)
-        print("Загружаю данные...")
         imageView.layer.cornerRadius = 20
     }
 
-    // MARK: - Private Functions
-    func showAnswerResult(isCorrect: Bool) {
-        presenter.didAnswer(isCorrectAnswer: isCorrect)
-        imageView.layer.masksToBounds = true
-        imageView.layer.borderWidth = 8
-        imageView.layer.cornerRadius = 20
-        imageView.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
-            guard let self = self else { return }
-            self.imageView.layer.borderWidth = 0 // Сбрасываем рамку
-            self.presenter.showNextQuestionOrResults()
-        }
-    }
-
+    // MARK: - View Methods
     func show(quiz step: QuizStepViewModel) {
-        print("Отображаем вопрос: \(step.question), изображение: \(step.image)")
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
-    }
-
-    private func showNextQuestionOrResults() {
-        if presenter.isLastQuestion() {
-            statisticService.store(correct: presenter.correctAnswers, total: presenter.questionsAmount)
-            let message = """
-                Ваш результат \(presenter.correctAnswers)/\(presenter.questionsAmount)
-                Количество сыгранных квизов: \(statisticService.gamesCount)
-                Рекорд: \(presenter.correctAnswers)/\(presenter.questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
-                Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
-            """
-
-            let alertModel = AlertModel(
-                title: "Этот раунд окончен!",
-                message: message,
-                buttonText: "Сыграть ещё раз",
-                completion: { [weak self] in
-                    self?.presenter.restartGame()
-                }
-            )
-            alertPresenter?.showAlert(model: alertModel)
-        } else {
-            presenter.switchToNextQuestion()
-            // Здесь не нужен restartGame, следующий вопрос запрашивается в презентере
-            setButtonsEnabled(true)
-        }
-    }
-
-    private func setButtonsEnabled(_ isEnabled: Bool) {
-        noButton.isEnabled = isEnabled
-        yesButton.isEnabled = isEnabled
+        setButtonsEnabled(true) // Разблокируем кнопки для нового вопроса
     }
 
     func showResults(quiz result: QuizResultsViewModel) {
+        let message = presenter.makeResultsMessage()
+
         let alert = UIAlertController(
             title: result.title,
-            message: result.text,
+            message: message,
             preferredStyle: .alert
         )
-
         let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
             guard let self = self else { return }
-            self.presenter.restartGame() // restartGame уже включает запрос первого вопроса
+            self.presenter.restartGame()
         }
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
     }
 
-    private func updateImageView() {
-        imageView.contentMode = .scaleAspectFill
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        imageView.layer.masksToBounds = true
+        imageView.layer.borderWidth = 8
         imageView.layer.cornerRadius = 20
-        imageView.clipsToBounds = true
+        imageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
     }
 
-    private func configureUI() {
-        yesButton.layer.cornerRadius = 15
-        yesButton.clipsToBounds = true
-        noButton.layer.cornerRadius = 15
-        noButton.clipsToBounds = true
-        imageView.layer.cornerRadius = 20
-        imageView.clipsToBounds = true
-        imageView.contentMode = .scaleAspectFill
-    }
-
-    private func changeStateButton(isEnabled: Bool) {
-        noButton.isEnabled = isEnabled
-        yesButton.isEnabled = isEnabled
+    func resetImageBorder() {
+        imageView.layer.borderWidth = 0
+        imageView.layer.borderColor = nil
     }
 
     func showLoadingIndicator() {
@@ -136,23 +87,37 @@ final class MovieQuizViewController: UIViewController {
         alertPresenter?.showAlert(model: alertModel)
     }
 
-    // MARK: - IBOutlets
-    @IBOutlet private weak var imageView: UIImageView!
-    @IBOutlet private weak var noButton: UIButton!
-    @IBOutlet private weak var yesButton: UIButton!
-    @IBOutlet private weak var textLabel: UILabel!
-    @IBOutlet private weak var counterLabel: UILabel!
-    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
+    // MARK: - Private Methods
+    private func configureUI() {
+        yesButton.layer.cornerRadius = 15
+        yesButton.clipsToBounds = true
+        noButton.layer.cornerRadius = 15
+        noButton.clipsToBounds = true
+        imageView.layer.cornerRadius = 20
+        imageView.clipsToBounds = true
+        imageView.contentMode = .scaleAspectFill
+    }
+
+    private func setButtonsEnabled(_ isEnabled: Bool) {
+        noButton.isEnabled = isEnabled
+        yesButton.isEnabled = isEnabled
+    }
+
+    private func updateImageView() {
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.cornerRadius = 20
+        imageView.clipsToBounds = true
+    }
 
     // MARK: - IBActions
     @IBAction private func noButtonClicked(_ sender: UIButton) {
-        presenter.noButtonClicked() // Исправлено с yesButtonClicked
-        changeStateButton(isEnabled: false)
+        presenter.noButtonClicked()
+        setButtonsEnabled(false)
     }
 
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
         presenter.yesButtonClicked()
-        changeStateButton(isEnabled: false)
+        setButtonsEnabled(false)
     }
 }
 //
