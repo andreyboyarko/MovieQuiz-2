@@ -5,8 +5,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     //MARK: - Properties
     // переменная с индексом текущего вопроса, начальное значение 0
-    private var currentQuestionIndex = 0
-    private let questionsAmount: Int = 10
+//    private var currentQuestionIndex = 0
+//    private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
 //    private var questionFactory: QuestionFactory = QuestionFactory()
     private var currentQuestion: QuizQuestion?
@@ -14,6 +14,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var correctAnswers = 0
     private var alertPresenter: AlertPresenter?
     private var statisticService: StatisticServiceProtocol!
+    
+    private let presenter = MovieQuizPresenter()
     
     // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
@@ -24,7 +26,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         }
         print("Получен вопрос: \(question.text), изображение: \(question.image.count) байт")
         currentQuestion = question
-        let viewModel = convert(model: question)
+        let viewModel = presenter.convert(model: question)
+//        let viewModel = convert(model: question)
 
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
@@ -70,21 +73,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         _ = questionFactory?.requestNextQuestion()
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        print("Преобразование вопроса: \(model.text), изображение: \(model.image.count) байт")
-
-        if model.image.isEmpty {
-            print("Ошибка: пустые данные изображения")
-        } else {
-            print("Размер данных изображения: \(model.image.count) байт")
-        }
-
-        return QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(), // Преобразуем картинку
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-        )
-    }
+//    private func convert(model: QuizQuestion) -> QuizStepViewModel {
+//        print("Преобразование вопроса: \(model.text), изображение: \(model.image.count) байт")
+//
+//        if model.image.isEmpty {
+//            print("Ошибка: пустые данные изображения")
+//        } else {
+//            print("Размер данных изображения: \(model.image.count) байт")
+//        }
+//
+//        return QuizStepViewModel(
+//            image: UIImage(data: model.image) ?? UIImage(), // Преобразуем картинку
+//            question: model.text,
+//            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
+//        )
+//    }
 
     private func show(quiz step: QuizStepViewModel) {
         print("Отображаем вопрос: \(step.question), изображение: \(step.image)")
@@ -96,13 +99,15 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         private func showNextQuestionOrResults() {
             imageView.layer.borderWidth = 0
             imageView.layer.borderColor = UIColor.clear.cgColor
-            if currentQuestionIndex == questionsAmount - 1 {
+//            if currentQuestionIndex == presenter.questionsAmount - 1 {
+            if presenter.isLastQuestion() {
                 // Сох. статистики в StatisticService
-                statisticService.store(correct: correctAnswers, total: questionsAmount)
+                statisticService.store(correct: correctAnswers, total: presenter.questionsAmount)
+//                statisticService.store(correct: correctAnswers, total: questionsAmount)
                 let massage = """
-                    Ваш результат \(correctAnswers)/\(questionsAmount)
+                    Ваш результат \(correctAnswers)/\(presenter.questionsAmount)
                     Количество сыгранных квизов: \(statisticService.gamesCount)
-                    Рекорд: \(correctAnswers)/\(questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
+                    Рекорд: \(correctAnswers)/\(presenter.questionsAmount) (\(statisticService.bestGame.date.dateTimeString))
                     Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%
                     """
                 
@@ -116,14 +121,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 )
                 alertPresenter?.showAlert(model: alertModel)
             } else {
-                currentQuestionIndex += 1
+                presenter.switchToNextQuestion()
                 _ = questionFactory?.requestNextQuestion()
                 setButtonsEnabled(true)
                 }
         }
     
     private func restartGame() {
-        currentQuestionIndex = 0
+        self.presenter.resetQuestionIndex()
         correctAnswers = 0
         showFirstQuestion()
     }
@@ -142,7 +147,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             
             let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
                 guard let self = self else { return }
-                self.currentQuestionIndex = 0
+                self.presenter.resetQuestionIndex()
                 self.correctAnswers = 0
                 self.showFirstQuestion()
             }
@@ -188,7 +193,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                                buttonText: "Попробовать еще раз") { [weak self] in
             guard let self = self else { return }
             
-            self.currentQuestionIndex = 0
+            self.presenter.resetQuestionIndex()
             self.correctAnswers = 0
             
             self.questionFactory?.requestNextQuestion()
