@@ -1,49 +1,89 @@
-////
-////  MovieQuizTests.swift
-////  MovieQuizTests
-////
-////  Created by Vitek on 09/03/2025.
-////
 //
+////
 //import XCTest
 //
-//struct ArithmeticOperations {
-//    func addition(num1: Int, num2: Int, handler: @escaping (Int) -> Void) {
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//            handler(num1 + num2)
-//        }
+//class MovieQuizUITests: XCTestCase {
+//    // swiftlint:disable:next implicitly_unwrapped_optional
+//    var app: XCUIApplication!
+//    
+//    override func setUpWithError() throws {
+//        try super.setUpWithError()
+//        
+//        app = XCUIApplication()
+//        app.launch()
+//        
+//        // это специальная настройка для тестов: если один тест не прошёл,
+//        // то следующие тесты запускаться не будут; и правда, зачем ждать?
+//        continueAfterFailure = false
 //    }
+//    override func tearDownWithError() throws {
+//        try super.tearDownWithError()
+//        
+////        app.terminate()
+//        app = nil
+//    }
+//    
+//    func testYesButton() {
+//        sleep(3)
+//        
+//        let firstPoster = app.images["Poster"]
+//        let firstPosterData = firstPoster.screenshot().pngRepresentation
+//        
+//        app.buttons["Yes"].tap()
+//        sleep(3)
+//        
+//        let secondPoster = app.images["Poster"]
+//        let secondPosterData = secondPoster.screenshot().pngRepresentation
+//        
+//        XCTAssertNotEqual(firstPosterData, secondPosterData)
+//    }
+//    func testNoButton() {
+//        sleep(3)
+//        
+//        let firstPoster = app.images["Poster"]
+//        let firstPosterData = firstPoster.screenshot().pngRepresentation
+//        
+//        app.buttons["No"].tap()
+//        sleep(3)
+//        
+//        let secondPoster = app.images["Poster"]
+//        let secondPosterData = secondPoster.screenshot().pngRepresentation
 //
-//    func subtraction(num1: Int, num2: Int, handler: @escaping (Int) -> Void) {
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//            handler(num1 - num2)
-//        }
+//        let indexLabel = app.staticTexts["Index"]
+//       
+//        XCTAssertNotEqual(firstPosterData, secondPosterData)
+//        XCTAssertEqual(indexLabel.label, "2/10")
 //    }
+//    
+////    func testGameFinish() {
+////        sleep(2)
+////        for _ in 1...10 {
+////            app.buttons["No"].tap()
+////            sleep(2)
+////        }
+////
+////        let alert = app.alerts["Game results"]
+////
+////        XCTAssertTrue(alert.exists)
+////        XCTAssertTrue(alert.label == "Этот раунд окончен!")
+////        XCTAssertTrue(alert.buttons.firstMatch.label == "Сыграть ещё раз")
+////    }
 //
-//    func multiplication(num1: Int, num2: Int, handler: @escaping (Int) -> Void) {
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-//            handler(num1 * num2)
-//        }
-//    }
+////    func testAlertDismiss() {
+////        sleep(2)
+////        for _ in 1...10 {
+////            app.buttons["No"].tap()
+////            sleep(2)
+////        }
+////
+////        let alert = app.alerts["Game results"]
+////        alert.buttons.firstMatch.tap()
+////
+////        sleep(2)
+////
+////        let indexLabel = app.staticTexts["Index"]
+////
+////        XCTAssertFalse(alert.exists)
+////        XCTAssertTrue(indexLabel.label == "1/10")
+////    }
 //}
-//
-//class MovieQuizTests: XCTestCase {
-//    func testAddition() throws {
-//        // Given
-//        let arithmeticOperations = ArithmeticOperations()
-//        let num1 = 1
-//        let num2 = 2
-//
-//        // When
-//        let expectation = expectation(description: "Addition function expectation")
-//
-//       arithmeticOperations.addition(num1: num1, num2: num2) { result in
-//            // Then
-//            XCTAssertEqual(result, 3)
-//            expectation.fulfill()
-//        }
-//
-//        waitForExpectations(timeout: 2)
-//    }
-//}
-//
