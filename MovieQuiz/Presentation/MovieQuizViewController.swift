@@ -4,7 +4,9 @@ import Foundation
 
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+import UIKit
+
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
     private var presenter: MovieQuizPresenter!
     private var alertPresenter: AlertPresenter?
 
@@ -24,22 +26,19 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.cornerRadius = 20
     }
 
-    // MARK: - View Methods
     func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
         textLabel.text = step.question
         counterLabel.text = step.questionNumber
-        setButtonsEnabled(true) // Разблокируем кнопки для нового вопроса
+        setButtonsEnabled(true)
     }
 
-    func showResults(quiz result: QuizResultsViewModel) {
+    func show(quiz result: QuizResultsViewModel) {
         let message = presenter.makeResultsMessage()
-
         let alert = UIAlertController(
             title: result.title,
             message: message,
-            preferredStyle: .alert
-        )
+            preferredStyle: .alert)
         let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
             guard let self = self else { return }
             self.presenter.restartGame()
@@ -87,7 +86,6 @@ final class MovieQuizViewController: UIViewController {
         alertPresenter?.showAlert(model: alertModel)
     }
 
-    // MARK: - Private Methods
     private func configureUI() {
         yesButton.layer.cornerRadius = 15
         yesButton.clipsToBounds = true
@@ -109,7 +107,6 @@ final class MovieQuizViewController: UIViewController {
         imageView.clipsToBounds = true
     }
 
-    // MARK: - IBActions
     @IBAction private func noButtonClicked(_ sender: UIButton) {
         presenter.noButtonClicked()
         setButtonsEnabled(false)

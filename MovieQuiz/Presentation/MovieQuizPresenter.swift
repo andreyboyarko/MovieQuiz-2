@@ -6,10 +6,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?
     private(set) var correctAnswers = 0
     private var currentQuestion: QuizQuestion?
-    private weak var viewController: MovieQuizViewController?
+    private weak var viewController: MovieQuizViewControllerProtocol? // Изменяем тип
     private let statisticService: StatisticServiceProtocol
 
-    init(viewController: MovieQuizViewController) {
+    init(viewController: MovieQuizViewControllerProtocol) { // Изменяем тип в init
         self.viewController = viewController
         self.statisticService = StatisticService()
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
@@ -17,12 +17,9 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         viewController.showLoadingIndicator()
     }
 
-    // MARK: - QuestionFactoryDelegate
+    // Остальной код остаётся без изменений
     func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            print("Ошибка: следующий вопрос не получен")
-            return
-        }
+        guard let question = question else { return }
         currentQuestion = question
         let viewModel = convert(model: question)
         DispatchQueue.main.async { [weak self] in
@@ -40,34 +37,23 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         viewController?.showNetworkError(message: message)
     }
 
-    // MARK: - Public Methods
     func isLastQuestion() -> Bool {
         currentQuestionIndex == questionsAmount - 1
     }
 
-    func resetQuestionIndex() {
+    func restartGame() {
         currentQuestionIndex = 0
+        correctAnswers = 0
+        viewController?.resetImageBorder()
+        questionFactory?.requestNextQuestion()
     }
 
     func switchToNextQuestion() {
         currentQuestionIndex += 1
     }
 
-    func restartGame() {
-        resetQuestionIndex()
-        correctAnswers = 0
-        viewController?.resetImageBorder()
-        questionFactory?.requestNextQuestion()
-    }
-
-    func didAnswer(isCorrectAnswer: Bool) {
-        if isCorrectAnswer {
-            correctAnswers += 1
-        }
-    }
-
     func convert(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
+        QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
@@ -75,29 +61,32 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
 
     func yesButtonClicked() {
-        guard let currentQuestion = currentQuestion else { return }
-        let isCorrect = currentQuestion.correctAnswer == true
-        showAnswerResult(isCorrect: isCorrect)
+        didAnswer(isYes: true)
     }
 
     func noButtonClicked() {
-        guard let currentQuestion = currentQuestion else { return }
-        let isCorrect = currentQuestion.correctAnswer == false
-        showAnswerResult(isCorrect: isCorrect)
+        didAnswer(isYes: false)
     }
 
-    func showAnswerResult(isCorrect: Bool) {
-        didAnswer(isCorrectAnswer: isCorrect)
-        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+    private func didAnswer(isYes: Bool) {
+        guard let currentQuestion = currentQuestion else { return }
+        let givenAnswer = isYes
+        proceedWithAnswer(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+    }
 
+    private func proceedWithAnswer(isCorrect: Bool) {
+        if isCorrect {
+            correctAnswers += 1
+        }
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
             self.viewController?.resetImageBorder()
-            self.showNextQuestionOrResults()
+            self.proceedToNextQuestionOrResults()
         }
     }
 
-    func showNextQuestionOrResults() {
+    private func proceedToNextQuestionOrResults() {
         if isLastQuestion() {
             let text = makeResultsMessage()
             let viewModel = QuizResultsViewModel(
@@ -105,7 +94,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                 text: text,
                 buttonText: "Сыграть ещё раз"
             )
-            viewController?.showResults(quiz: viewModel)
+            viewController?.show(quiz: viewModel)
         } else {
             switchToNextQuestion()
             questionFactory?.requestNextQuestion()
@@ -114,21 +103,11 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 
     func makeResultsMessage() -> String {
         statisticService.store(correct: correctAnswers, total: questionsAmount)
-        
         let bestGame = statisticService.bestGame
-        
         let totalPlaysCountLine = "Количество сыгранных квизов: \(statisticService.gamesCount)"
         let currentGameResultLine = "Ваш результат: \(correctAnswers)/\(questionsAmount)"
         let bestGameInfoLine = "Рекорд: \(bestGame.correct)/\(bestGame.total) (\(bestGame.date.dateTimeString))"
         let averageAccuracyLine = "Средняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
-        
-        let resultMessage = [
-            currentGameResultLine,
-            totalPlaysCountLine,
-            bestGameInfoLine,
-            averageAccuracyLine
-        ].joined(separator: "\n")
-        
-        return resultMessage
+        return [currentGameResultLine, totalPlaysCountLine, bestGameInfoLine, averageAccuracyLine].joined(separator: "\n")
     }
 }
