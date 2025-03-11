@@ -6,10 +6,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?
     private(set) var correctAnswers = 0
     private var currentQuestion: QuizQuestion?
-    private weak var viewController: MovieQuizViewControllerProtocol? // Изменяем тип
+    private weak var viewController: MovieQuizViewControllerProtocol?
     private let statisticService: StatisticServiceProtocol
 
-    init(viewController: MovieQuizViewControllerProtocol) { // Изменяем тип в init
+    init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         self.statisticService = StatisticService()
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
@@ -17,7 +17,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         viewController.showLoadingIndicator()
     }
 
-    // Остальной код остаётся без изменений
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else { return }
         currentQuestion = question
