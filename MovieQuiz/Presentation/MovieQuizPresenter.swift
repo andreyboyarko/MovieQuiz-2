@@ -31,4 +31,39 @@ final class MovieQuizPresenter {
             questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
         )
     }
+    
+    var currentQuestion: QuizQuestion?
+    weak var viewController: MovieQuizViewController?
+    
+    func yesButtonClicked() {
+            guard let currentQuestion = currentQuestion else {
+                return
+            }
+            
+            let givenAnswer = true
+            
+            viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        }
+    
+    func noButtonClicked() {
+            guard let currentQuestion = currentQuestion else {
+                return
+            }
+            
+            let givenAnswer = false
+            
+            viewController?.showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        }
+    
+    
+//    @IBAction func yesButtonClicked(_ sender: UIButton) {
+////        changeStateButton(isEnabled: false)// Блокируем кнопки
+//        guard let currentQuestion = currentQuestion else {
+//            return
+//        }
+//        let givenAnswer = true
+//
+//        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+//    }
+
 }

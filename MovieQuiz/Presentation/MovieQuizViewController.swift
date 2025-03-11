@@ -46,11 +46,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showLoadingIndicator() // Показываем индикатор загрузки перед загрузкой данных
         questionFactory?.loadData() // Начинаем загрузку данных
         imageView.layer.cornerRadius = 20
+        presenter.viewController = self
     }
 
     // MARK: - Private Functions
     // Обработка результата ответа
-    private func showAnswerResult(isCorrect: Bool) {
+    func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
             correctAnswers += 1
         }
@@ -245,20 +246,24 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     @IBAction private func noButtonClicked(_ sender: UIButton) {
+        presenter.currentQuestion = currentQuestion
+        presenter.noButtonClicked()
         changeStateButton(isEnabled: false) // Блокируем кнопки
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = false
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+//        guard let currentQuestion = currentQuestion else {
+//            return
+//        }
+//        let givenAnswer = false
+//        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
     @IBAction private func yesButtonClicked(_ sender: UIButton) {
+        presenter.currentQuestion = currentQuestion
+        presenter.yesButtonClicked()
         changeStateButton(isEnabled: false) // Блокируем кнопки
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        let givenAnswer = true
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+//        guard let currentQuestion = currentQuestion else {
+//            return
+//        }
+//        let givenAnswer = true
+//        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
     }
 }
 
