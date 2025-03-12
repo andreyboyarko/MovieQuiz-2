@@ -21,6 +21,7 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
         presenter = MovieQuizPresenter(viewController: self)
         alertPresenter = AlertPresenter(viewController: self)
         imageView.layer.cornerRadius = 20
+        counterLabel.accessibilityIdentifier = "Index"
     }
 
     func show(quiz step: QuizStepViewModel) {
@@ -31,24 +32,25 @@ final class MovieQuizViewController: UIViewController, MovieQuizViewControllerPr
     }
 
     func show(quiz result: QuizResultsViewModel) {
-        let message = presenter.makeResultsMessage()
+        let message = presenter.getResultsMessage()
         let alert = UIAlertController(
             title: result.title,
             message: message,
-            preferredStyle: .alert)
+            preferredStyle: .alert
+        )
         let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
-            guard let self = self else { return }
-            self.presenter.restartGame()
+            self?.presenter.restartGame()
         }
         alert.addAction(action)
         present(alert, animated: true, completion: nil)
     }
 
+
     func highlightImageBorder(isCorrectAnswer: Bool) {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = 8
         imageView.layer.cornerRadius = 20
-        imageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+        imageView.layer.borderColor = isCorrectAnswer ? UIColor.ypGreenColor.cgColor : UIColor.ypRed.cgColor
     }
 
     func resetImageBorder() {

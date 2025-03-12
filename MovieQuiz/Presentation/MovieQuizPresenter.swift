@@ -36,16 +36,18 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         viewController?.showNetworkError(message: message)
     }
 
-    func isLastQuestion() -> Bool {
+    private func isLastQuestion() -> Bool {
         currentQuestionIndex == questionsAmount - 1
     }
 
     func restartGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
+        print("Game restarted, currentQuestionIndex:", currentQuestionIndex)
         viewController?.resetImageBorder()
         questionFactory?.requestNextQuestion()
     }
+
 
     func switchToNextQuestion() {
         currentQuestionIndex += 1
@@ -65,6 +67,10 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
 
     func noButtonClicked() {
         didAnswer(isYes: false)
+    }
+    
+    func getResultsMessage() -> String {
+        return makeResultsMessage()
     }
 
     private func didAnswer(isYes: Bool) {
@@ -100,7 +106,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
 
-    func makeResultsMessage() -> String {
+    private func makeResultsMessage() -> String {
         statisticService.store(correct: correctAnswers, total: questionsAmount)
         let bestGame = statisticService.bestGame
         let totalPlaysCountLine = "Количество сыгранных квизов: \(statisticService.gamesCount)"
